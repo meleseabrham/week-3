@@ -1,0 +1,11 @@
+PolicyID,TransactionMonth,TotalPremium,TotalClaims,Province,PostalCode,VehicleType,Gender,Make
+P001,2014-01-01,1000,0,Gauteng,2000,Sedan,Male,Toyota
+P002,2014-01-01,1200,500,Western Cape,8000,SUV,Female,BMW
+P003,2014-02-01,800,0,KZN,4000,Hatchback,Male,Ford
+P004,2014-02-01,1500,2000,Gauteng,2001,Sedan,Female,Audi
+P005,2014-03-01,900,0,Eastern Cape,5000,Bakkie,Male,Toyota
+P006,2014-03-01,1100,100,Gauteng,2002,Sedan,Male,Volkswagen
+P007,2014-04-01,1300,0,Western Cape,8001,SUV,Female,Mercedes
+P008,2014-04-01,950,300,KZN,4001,Hatchback,Male,Hyundai
+P009,2014-05-01,1050,0,Gauteng,2003,Sedan,Female,Toyota
+P010,2014-05-01,1400,1500,Limpopo,0700,Bakkie,Male,Ford
