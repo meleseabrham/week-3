@@ -17,5 +17,5 @@ This project follows **Clean Architecture** principles:
 
 ## Setup
 1. Clone the repository.
-2. Install dependencies: `pip install -r requirements.txt`
+2. Install dependencies: `python -m pip install -r requirements.txt`
 3. Run analysis: `python src/interfaces/cli.py`
