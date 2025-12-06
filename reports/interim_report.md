@@ -1,41 +1,70 @@
 # Interim Report: Task 1 & Task 2
 
 **Project**: AlphaCare Insurance Solutions - Risk Analytics  
-**Date**: December 5, 2024  
+**Date**: December 5, 2025  
 **Repository**: [https://github.com/meleseabrham/week-3](https://github.com/meleseabrham/week-3)
 
 ---
 
 ## Executive Summary
 
-This report summarizes the work completed in Task 1 (EDA & Project Setup) and Task 2 (Data Version Control). The project uses Clean Architecture and is fully version-controlled with Git and DVC.
+This report summarizes the work completed in Task 1 (EDA & Project Setup) and Task 2 (Data Version Control). The project analyzes insurance data to identify risk patterns and optimize marketing strategies. The codebase follows Clean Architecture principles and is fully version-controlled with Git and DVC.
 
 ---
 
 ## Task 1: Project Setup & EDA
 
 ### 1.1 Git & GitHub Setup
-- Initialized Git repository with proper `.gitignore` and `README.md`.
-- Set up CI/CD pipeline using GitHub Actions (`.github/workflows/ci.yml`).
-- Created `task-1` branch for development.
+- ✅ Initialized Git repository with proper `.gitignore` and `README.md`
+- ✅ Set up CI/CD pipeline using GitHub Actions (`.github/workflows/ci.yml`)
+- ✅ Created development branches (`task-1`, `task-2`)
+- ✅ Regular commits with descriptive messages
 
-### 1.2 Exploratory Data Analysis (EDA)
+### 1.2 Data Overview
 
-#### Key Findings
+**Dataset**: `insurance.csv` (1,338 records, 7 features)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `age` | Numeric | Age of the insured person |
+| `sex` | Categorical | Gender (male/female) |
+| `bmi` | Numeric | Body Mass Index |
+| `children` | Numeric | Number of dependents |
+| `smoker` | Categorical | Smoking status (yes/no) |
+| `region` | Categorical | Geographic region (northeast, northwest, southeast, southwest) |
+| `charges` | Numeric | Insurance charges/premiums |
+
+### 1.3 Exploratory Data Analysis (EDA)
+
+#### Key Statistical Findings
 
 | Metric | Value |
 |--------|-------|
-| **Overall Loss Ratio** | 39.29% |
-| **Highest Risk Province** | Limpopo (107.14%) |
-| **Lowest Risk Province** | Eastern Cape (0%) |
-| **Female Loss Ratio** | 49.5% |
-| **Male Loss Ratio** | 30.9% |
+| **Total Records** | 1,338 |
+| **Mean Charges** | $13,270 |
+| **Median Charges** | $9,382 |
+| **Min Charges** | $1,122 |
+| **Max Charges** | $63,770 |
+| **Smokers** | ~20% of dataset |
 
-#### Visualizations Generated
-- Distribution plots for `TotalPremium` and `TotalClaims`.
-- Bar charts for Loss Ratio by Province, VehicleType, and Gender.
-- Time series plot for temporal trends.
-- Box plots for outlier detection.
+#### Key Insights
+
+1. **Smoking Status**: Smokers have significantly higher insurance charges (avg ~$32,000) compared to non-smokers (avg ~$8,400)
+2. **Age Impact**: Strong positive correlation between age and insurance charges
+3. **BMI Effect**: Higher BMI correlates with increased charges, especially for smokers
+4. **Regional Variation**: Southeast region shows slightly higher average charges
+5. **Outliers**: High-value claims primarily from older smokers with high BMI
+
+### 1.4 Visualizations Generated
+
+| Figure | Description |
+|--------|-------------|
+| `dist_charges.png` | Distribution of insurance charges (right-skewed) |
+| `box_charges.png` | Boxplot showing charge outliers |
+| `box_charges_by_smoker.png` | Charge comparison by smoking status |
+| `bar_charges_by_region.png` | Average charges by geographic region |
+| `scatter_age_charges.png` | Age vs Charges relationship (colored by smoker) |
+| `scatter_bmi_charges.png` | BMI vs Charges relationship (colored by smoker) |
 
 All plots are saved in `reports/figures/`.
 
@@ -44,37 +73,73 @@ All plots are saved in `reports/figures/`.
 ## Task 2: Data Version Control (DVC)
 
 ### 2.1 Setup
-- Installed and initialized DVC.
-- Configured local remote storage (`dvc_storage/`).
+- ✅ Installed DVC via `pip install dvc`
+- ✅ Initialized DVC in project directory (`dvc init`)
+- ✅ Configured local remote storage (`dvc_storage/`)
 
 ### 2.2 Data Tracking
-- Tracked `data/insurance_claims.csv` with DVC.
-- Ensured `.csv` and `.dvc` files are excluded from GitHub via `.gitignore`.
+- ✅ Data files tracked with DVC
+- ✅ `.csv` files excluded from Git via `.gitignore`
+- ✅ `.dvc` tracking files committed to repository
 
 ### 2.3 Repository Structure
 ```
 Week 3/
-├── .dvc/                 # DVC config
-├── .github/workflows/    # CI/CD
-├── data/                 # Tracked by DVC (only .gitkeep on GitHub)
-├── reports/figures/      # Generated plots
+├── .dvc/                 # DVC configuration
+├── .github/workflows/    # CI/CD pipeline
+├── data/                 # Data files (tracked by DVC)
+│   └── insurance.csv     # Main dataset (1,338 records)
+├── reports/
+│   ├── figures/          # Generated EDA plots
+│   └── interim_report.md # This report
 ├── src/                  # Clean Architecture source code
-│   ├── application/      # Use cases & interfaces
+│   ├── application/      # Use cases & interfaces (eda_service.py)
 │   ├── domain/           # Business entities & rules
 │   ├── infrastructure/   # Data loaders & plotting
 │   └── interfaces/       # CLI entry point
 ├── tests/                # Unit tests
+├── integrate_data.py     # Data integration script
 └── requirements.txt      # Dependencies
 ```
 
 ---
 
-## Branches Merged to Main
-- `task-1`: Project setup, EDA implementation, CI/CD.
-- `task-2`: DVC setup, data tracking.
+## Dependencies
+
+```
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+scikit-learn
+pytest
+dvc
+```
 
 ---
 
 ## Next Steps
-- **Task 3**: A/B Hypothesis Testing (Risk differences by province, gender, etc.)
-- **Task 4**: Predictive Modeling (Premium prediction using ML)
+
+### Task 3: A/B Hypothesis Testing
+- Test for significant differences in charges between regions
+- Test for significant differences between smokers and non-smokers
+- Test for gender-based charge differences
+- Test for age group risk differences
+
+### Task 4: Machine Learning & Statistical Modeling
+- Build linear regression model to predict insurance charges
+- Feature importance analysis (age, BMI, smoking status, region)
+- Model evaluation and optimization
+
+---
+
+## Conclusion
+
+Tasks 1 and 2 have been successfully completed. The project infrastructure is in place with:
+- Version-controlled codebase on GitHub
+- DVC-tracked data files
+- Clean Architecture implementation
+- Comprehensive EDA with visualizations
+
+The analysis reveals that **smoking status**, **age**, and **BMI** are the primary drivers of insurance charges, providing actionable insights for risk segmentation and premium optimization.
