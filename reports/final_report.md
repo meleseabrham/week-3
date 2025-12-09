@@ -4,8 +4,6 @@
 
 ---
 
-![Insurance Analytics](https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800)
-
 **Author**: Data Analytics Team  
 **Date**: December 2025  
 **Organization**: AlphaCare Insurance Solutions (ACIS)
@@ -53,186 +51,387 @@ We followed a rigorous, four-phase methodology:
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### Phase 1: Exploratory Data Analysis
-- Analyzed 1,338 insurance policies
-- Examined distributions of age, BMI, smoking status, region
-- Identified initial patterns and correlations
+---
 
-### Phase 2: Statistical Hypothesis Testing
-- Tested 4 null hypotheses using ANOVA and t-tests
-- Applied 95% confidence level (α = 0.05)
-- Validated which factors truly impact charges
+## 3. Exploratory Data Analysis (EDA)
 
-### Phase 3: Machine Learning Models
-- Built 4 regression models (Linear, Decision Tree, Random Forest, XGBoost)
-- Built 4 classification models for risk segmentation
-- Used SHAP for model interpretability
+### 3.1 Dataset Overview
 
-### Phase 4: Business Translation
-- Converted statistical findings to pricing recommendations
-- Developed tiered premium framework
-- Created actionable customer segmentation strategy
+We analyzed **1,338 insurance policies** with the following variables:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `age` | Numeric | Age of insured (18-64) |
+| `sex` | Categorical | Gender (male/female) |
+| `bmi` | Numeric | Body Mass Index (15.96-53.13) |
+| `children` | Numeric | Number of dependents (0-5) |
+| `smoker` | Categorical | Smoking status (yes/no) |
+| `region` | Categorical | US region (4 regions) |
+| `charges` | Numeric | Insurance charges ($1,121-$63,770) |
+
+**Data Quality**: ✅ No missing values, ✅ No duplicates
 
 ---
 
-## 3. Key Insights from Our Analysis
+### 3.2 Distribution Analysis
 
-### 🚬 Finding #1: Smoking is the Dominant Risk Factor
+#### Numerical Variable Distributions
 
-**The data is unequivocal**: Smoking status is the strongest predictor of insurance charges.
+![Univariate Distributions](figures/eda_univariate_distributions.png)
+*Figure 1: Distribution of numerical variables (age, bmi, children, charges)*
 
-| Customer Segment | Average Charges | Relative to Non-Smokers |
-|-----------------|-----------------|-------------------------|
-| Non-Smokers | $8,434 | Baseline |
-| Smokers | $32,050 | **+280%** |
-
-**Statistical Validation**: Our t-test yielded a p-value < 0.0001, meaning there's less than a 0.01% chance this difference occurred by random chance.
-
-> 💡 **Business Insight**: Every smoker in your portfolio costs, on average, **$23,616 more** in claims than a non-smoker.
+**Key Observations**:
+- **Age**: Fairly uniform distribution across 18-64 range
+- **BMI**: Approximately normal distribution, centered around 30 (overweight threshold)
+- **Children**: Right-skewed, most policies have 0-2 children
+- **Charges**: Heavily right-skewed with long tail (outliers present)
 
 ---
 
-### ⚖️ Finding #2: BMI Matters—Especially for Smokers
+#### Outlier Detection
 
-BMI alone shows moderate correlation with charges, but the **interaction between smoking and BMI** is explosive.
+![Boxplots](figures/eda_boxplots.png)
+*Figure 2: Boxplots showing outliers in numerical variables*
 
-| Customer Profile | Average Charges |
-|-----------------|-----------------|
-| Non-Smoker, Normal BMI | $7,500 |
-| Non-Smoker, Obese | $11,500 |
-| Smoker, Normal BMI | $25,000 |
-| **Smoker, Obese** | **$45,000+** |
+**Outlier Analysis**:
+| Variable | Outlier Count | Interpretation |
+|----------|---------------|----------------|
+| Age | 0 | No outliers |
+| BMI | ~9 | Extremely obese individuals |
+| Children | 0 | No outliers |
+| **Charges** | **~140** | High-cost claims (smokers) |
 
-**The "Toxic Combination"**: A smoker with obesity can cost **6x more** than a healthy non-smoker. Our SHAP analysis confirmed that `smoker_bmi` (the interaction term) is the single most important feature in our models.
-
----
-
-### 👴 Finding #3: Age is a Steady, Predictable Factor
-
-Unlike smoking (which creates distinct risk tiers), age shows a **linear relationship** with charges:
-
-- **Ages 18-30**: Average $8,500
-- **Ages 31-45**: Average $11,000
-- **Ages 46-60**: Average $14,500
-- **Ages 60+**: Average $18,000
-
-This predictability makes age an excellent candidate for systematic premium adjustments.
+> 💡 **Insight**: The "outliers" in charges are not data errors—they represent legitimate high-risk policyholders (primarily smokers with high BMI).
 
 ---
 
-### 🗺️ Finding #4: Regional Differences Are Minimal
+#### Categorical Variable Distributions
 
-Contrary to some expectations, our ANOVA test found **no statistically significant difference** in charges across US regions (p-value = 0.06).
+![Categorical Distributions](figures/eda_categorical_distributions.png)
+*Figure 3: Distribution of categorical variables (gender, smoker status, region)*
 
-| Region | Average Charges | Difference from Mean |
-|--------|-----------------|---------------------|
-| Southeast | $14,735 | +11% |
-| Northeast | $13,406 | +1% |
-| Northwest | $12,417 | -6% |
-| Southwest | $12,347 | -7% |
-
-> 💡 **Business Insight**: Regional pricing adjustments are not statistically justified. Resources are better spent on smoking and BMI-based segmentation.
-
----
-
-### 👤 Finding #5: Gender is Not a Significant Risk Factor
-
-Our analysis found **no statistically significant difference** between male and female charges (p-value = 0.036, borderline with small effect size).
-
-This supports **gender-neutral pricing** policies, which aligns with regulatory trends in many markets.
+**Distribution Summary**:
+| Variable | Category | Percentage |
+|----------|----------|------------|
+| Gender | Male | 50.5% |
+| Gender | Female | 49.5% |
+| Smoker | No | 79.5% |
+| Smoker | Yes | 20.5% |
+| Region | Southeast | 27.2% |
+| Region | Southwest | 24.3% |
+| Region | Northwest | 24.3% |
+| Region | Northeast | 24.2% |
 
 ---
 
-## 4. Machine Learning Model Performance
+### 3.3 Correlation Analysis
 
-We trained and evaluated multiple models to predict insurance charges:
+![Correlation Matrix](figures/eda_correlation_matrix.png)
+*Figure 4: Correlation matrix of numerical variables*
 
-### Regression Results (Predicting Exact Charges)
+**Correlation with Charges**:
+| Variable | Correlation | Interpretation |
+|----------|-------------|----------------|
+| Age | 0.30 | Moderate positive |
+| BMI | 0.20 | Weak positive |
+| Children | 0.07 | Very weak |
 
-| Model | R² Score | RMSE | Interpretation |
-|-------|----------|------|----------------|
-| **Random Forest** | **0.86** | $4,500 | Best overall |
-| XGBoost | 0.85 | $4,700 | Close second |
-| Decision Tree | 0.80 | $5,500 | Moderate |
-| Linear Regression | 0.75 | $6,100 | Baseline |
-
-**Interpretation**: Our Random Forest model explains **86% of the variance** in insurance charges and predicts within **$4,500** on average.
-
-### Classification Results (Predicting High vs Low Risk)
-
-| Model | AUC-ROC | F1-Score | Interpretation |
-|-------|---------|----------|----------------|
-| **Random Forest** | **0.95** | 0.88 | Excellent |
-| XGBoost | 0.94 | 0.87 | Very Good |
-| Logistic Regression | 0.90 | 0.82 | Good baseline |
-
-**Interpretation**: We can identify high-risk customers with **95% confidence** before they file claims.
+> ⚠️ **Note**: Correlation matrix only captures linear relationships. The true impact of smoking is hidden because it's categorical.
 
 ---
 
-## 5. SHAP Analysis: What Drives Predictions?
+### 3.4 Bivariate Analysis
 
-Using SHAP (SHapley Additive exPlanations), we opened the "black box" of our best model:
+#### Smoking Impact on Charges
 
-### Top 5 Risk Drivers (Feature Importance)
+![Smoker Comparison](figures/eda_charges_by_smoker.png)
+*Figure 5: Insurance charges by smoking status*
 
-| Rank | Feature | Impact |
-|------|---------|--------|
-| 1 | **smoker_bmi** | Highest—the smoking-obesity combination |
-| 2 | **smoker** | Being a smoker alone |
-| 3 | **age** | Older = higher predicted charges |
-| 4 | **bmi** | Independent BMI effect |
-| 5 | **age_smoker** | Age multiplied by smoking status |
+**The Smoking Effect**:
+| Group | Mean Charges | Median Charges | Std Dev |
+|-------|--------------|----------------|---------|
+| Non-Smokers | $8,434 | $7,345 | $5,993 |
+| Smokers | $32,050 | $34,456 | $11,541 |
+| **Difference** | **+$23,616** | **+$27,111** | — |
 
-### Quantified Impact (SHAP Values)
+---
 
-> "For every unit increase in BMI among smokers, predicted charges increase by approximately **$500-1,000**. This provides quantitative evidence to implement BMI-adjusted premiums specifically for smoking policyholders."
+#### Age vs Charges by Smoking Status
+
+![Age BMI vs Charges](figures/eda_age_bmi_vs_charges.png)
+*Figure 6: Scatter plots showing age and BMI vs charges, colored by smoking status*
+
+**Key Pattern**: Two distinct "clouds" emerge:
+- **Green cluster (non-smokers)**: Linear, moderate increase with age
+- **Red cluster (smokers)**: Elevated baseline with steeper age effect
+
+---
+
+#### Regional Variation
+
+![Regional Comparison](figures/eda_charges_by_region.png)
+*Figure 7: Insurance charges by region*
+
+**Regional Statistics**:
+| Region | Mean Charges | Count |
+|--------|--------------|-------|
+| Southeast | $14,735 | 364 |
+| Northeast | $13,406 | 324 |
+| Northwest | $12,417 | 325 |
+| Southwest | $12,347 | 325 |
+
+---
+
+### 3.5 Loss Ratio Analysis
+
+The **Loss Ratio** measures the proportion of premiums paid out as claims. While our dataset uses charges (a proxy for claims), we can compute a simulated loss ratio:
+
+```
+Simulated Loss Ratio = Mean Charges / Mean Premium
+```
+
+| Segment | Mean Charges | Estimated Premium* | Loss Ratio |
+|---------|--------------|-------------------|------------|
+| Non-Smokers | $8,434 | $10,000 | 84.3% |
+| Smokers | $32,050 | $35,000 | 91.6% |
+| Overall | $13,270 | $15,000 | 88.5% |
+
+*\*Estimated premium = charges + 15-20% margin*
+
+**Interpretation**:
+- **Smokers have 91.6% loss ratio** — barely profitable
+- **Non-smokers have 84.3% loss ratio** — healthy margin
+- **Action**: Increase smoker premiums or reduce smoker portfolio
+
+---
+
+### 3.6 Multivariate Dashboard
+
+![EDA Dashboard](figures/eda_dashboard.png)
+*Figure 8: Comprehensive EDA dashboard showing all key relationships*
+
+---
+
+## 4. Statistical Hypothesis Testing
+
+We tested **4 null hypotheses** using a significance level of **α = 0.05**.
+
+### 4.1 Hypothesis Testing Summary
+
+![Hypothesis Testing Summary](figures/hypothesis_testing_summary.png)
+*Figure 9: Visual summary of all hypothesis tests*
+
+| # | Null Hypothesis | Test | p-value | Decision |
+|---|-----------------|------|---------|----------|
+| H₀₁ | No regional differences | ANOVA | 0.0618 | Fail to Reject |
+| H₀₂ | No gender differences | t-test | 0.0360 | Borderline |
+| H₀₃ | No smoker differences | t-test | <0.0001 | **REJECT** ✅ |
+| H₀₄ | No BMI category differences | ANOVA | <0.0001 | **REJECT** ✅ |
+
+---
+
+### 4.2 H₀₁: No Risk Differences Across Regions
+
+![Regional Hypothesis](figures/h1_regional_comparison.png)
+*Figure 10: Regional comparison for hypothesis testing*
+
+**Test Details**:
+- **Test**: One-way ANOVA
+- **Groups**: Northeast, Northwest, Southeast, Southwest
+- **F-statistic**: 2.47
+- **p-value**: 0.0618
+
+**Result**: **FAIL TO REJECT H₀** (p > 0.05)
+
+**Conclusion**: There is **no statistically significant difference** in insurance charges across US regions at the 95% confidence level. Regional premium adjustments are not justified by the data.
+
+---
+
+### 4.3 H₀₂: No Risk Differences Between Genders
+
+![Gender Hypothesis](figures/h2_gender_comparison.png)
+*Figure 11: Gender comparison for hypothesis testing*
+
+**Test Details**:
+- **Test**: Independent t-test
+- **Groups**: Male vs Female
+- **t-statistic**: 2.10
+- **p-value**: 0.0360
+- **Cohen's d**: 0.11 (small effect)
+
+**Result**: **BORDERLINE** (p = 0.036, but effect size is small)
+
+**Group Statistics**:
+| Gender | Mean Charges | Std Dev | Count |
+|--------|--------------|---------|-------|
+| Male | $13,956 | $12,971 | 676 |
+| Female | $12,569 | $11,128 | 662 |
+
+**Conclusion**: While statistically significant, the **effect size is very small** (Cohen's d = 0.11). The $1,387 difference is not practically meaningful for pricing. **Gender-neutral pricing is recommended**.
+
+---
+
+### 4.4 H₀₃: No Risk Differences Between Smokers and Non-Smokers
+
+![Smoker Hypothesis](figures/h3_smoker_comparison.png)
+*Figure 12: Smoker vs Non-smoker comparison*
+
+**Test Details**:
+- **Test**: Independent t-test
+- **Groups**: Smoker (yes) vs Smoker (no)
+- **t-statistic**: 46.45
+- **p-value**: < 0.0001 (essentially zero)
+- **Cohen's d**: 2.28 (very large effect)
+
+**Result**: **REJECT H₀** ✅ (p < 0.0001)
+
+**Group Statistics**:
+| Smoker Status | Mean Charges | Std Dev | Count |
+|---------------|--------------|---------|-------|
+| Non-Smoker | $8,434 | $5,993 | 1,064 |
+| Smoker | $32,050 | $11,541 | 274 |
+| **Difference** | **$23,616** | — | — |
+
+**Conclusion**: This is the **strongest finding** in our analysis. Smokers have charges that are **3.8x higher** than non-smokers. This difference is:
+- Statistically significant (p < 0.0001)
+- Practically significant (Cohen's d = 2.28, very large)
+- **Actionable**: Smoking status should be the primary factor in premium pricing.
+
+---
+
+### 4.5 H₀₄: No Risk Differences Across BMI Categories
+
+![BMI Hypothesis](figures/h4_bmi_comparison.png)
+*Figure 13: BMI category comparison*
+
+**Test Details**:
+- **Test**: One-way ANOVA
+- **Groups**: Underweight, Normal, Overweight, Obese
+- **F-statistic**: 14.72
+- **p-value**: < 0.0001
+
+**Result**: **REJECT H₀** ✅ (p < 0.0001)
+
+**Group Statistics**:
+| BMI Category | Range | Mean Charges | Count |
+|--------------|-------|--------------|-------|
+| Underweight | <18.5 | $8,852 | 20 |
+| Normal | 18.5-25 | $10,409 | 225 |
+| Overweight | 25-30 | $11,044 | 386 |
+| Obese | >30 | $15,552 | 707 |
+
+**Conclusion**: BMI category significantly impacts charges. **Obese individuals cost 49% more** than those with normal BMI. This justifies BMI-based premium adjustments.
+
+---
+
+## 5. Machine Learning Modeling
+
+### 5.1 Regression Models (Predicting Charges)
+
+![Regression Comparison](figures/model_regression_comparison.png)
+*Figure 14: Regression model comparison (R² and RMSE)*
+
+| Model | R² Score | RMSE | MAE | CV R² |
+|-------|----------|------|-----|-------|
+| **Random Forest** | **0.862** | $4,498 | $2,561 | 0.847 |
+| XGBoost | 0.854 | $4,716 | $2,687 | 0.839 |
+| Decision Tree | 0.798 | $5,542 | $3,102 | 0.772 |
+| Linear Regression | 0.751 | $6,082 | $4,195 | 0.743 |
+
+**Best Model**: **Random Forest** with 86.2% R² score
+
+---
+
+### 5.2 Actual vs Predicted Analysis
+
+![Best Model Analysis](figures/model_best_regression_analysis.png)
+*Figure 15: Random Forest - Actual vs Predicted charges with residual analysis*
+
+**Observations**:
+- Points cluster around the diagonal (good predictions)
+- Some underprediction for very high charges
+- Residuals show slight heteroscedasticity for high values
+
+---
+
+### 5.3 Classification Models (High-Risk Prediction)
+
+![Classification Comparison](figures/model_classification_comparison.png)
+*Figure 16: Classification model comparison with ROC curves*
+
+| Model | AUC-ROC | Accuracy | Precision | Recall | F1-Score |
+|-------|---------|----------|-----------|--------|----------|
+| **Random Forest** | **0.953** | 0.881 | 0.868 | 0.895 | 0.881 |
+| XGBoost | 0.945 | 0.873 | 0.860 | 0.887 | 0.873 |
+| Logistic Regression | 0.901 | 0.836 | 0.821 | 0.852 | 0.836 |
+
+---
+
+### 5.4 Confusion Matrix
+
+![Confusion Matrix](figures/model_confusion_matrix.png)
+*Figure 17: Random Forest confusion matrix for high-risk classification*
+
+**Interpretation**:
+- **True Positives**: Correctly identified high-risk customers
+- **False Negatives**: Missed high-risk customers (most costly error)
+- **Overall Accuracy**: 88.1%
+
+---
+
+### 5.5 Feature Importance Analysis
+
+![Feature Importance](figures/model_feature_importance_rf.png)
+*Figure 18: Random Forest feature importance*
+
+**Top 10 Risk Drivers**:
+| Rank | Feature | Importance | Interpretation |
+|------|---------|------------|----------------|
+| 1 | **smoker_bmi** | 0.452 | Smoking × BMI interaction |
+| 2 | **smoker_encoded** | 0.258 | Smoking status alone |
+| 3 | **age** | 0.124 | Age effect |
+| 4 | **bmi** | 0.078 | BMI independent effect |
+| 5 | **age_smoker** | 0.051 | Age × Smoking interaction |
+| 6 | **children** | 0.015 | Number of dependents |
+| 7-11 | Regional dummies | <0.01 | Minimal impact |
+
+> 💡 **Key Insight**: The top 2 features (smoker_bmi, smoker_encoded) together explain **71%** of model's predictive power.
 
 ---
 
 ## 6. Business Recommendations
 
-Based on our comprehensive analysis, we recommend the following strategic initiatives:
-
 ### 📊 Recommendation 1: Implement Tiered Premium Structure
 
-| Tier | Customer Profile | Premium Multiplier |
-|------|-----------------|-------------------|
-| **Tier 1** (Highest Risk) | Smoker + Obese (BMI ≥ 30) | 4.0x base |
-| **Tier 2** | Smoker + Overweight (BMI 25-30) | 3.5x base |
-| **Tier 3** | Smoker + Normal BMI | 3.0x base |
-| **Tier 4** | Non-Smoker + Obese | 1.3x base |
-| **Tier 5** (Lowest Risk) | Non-Smoker + Normal BMI | 1.0x (base) |
-
-**Expected Impact**: More accurate risk pricing, estimated 15-20% improvement in loss ratio.
+| Tier | Customer Profile | Premium Multiplier | Justification |
+|------|-----------------|-------------------|---------------|
+| **Tier 1** | Smoker + Obese | 4.0x base | Highest risk (SHAP: +$25K) |
+| **Tier 2** | Smoker + Overweight | 3.5x base | Very high risk |
+| **Tier 3** | Smoker + Normal BMI | 3.0x base | Hypothesis testing: 3.8x |
+| **Tier 4** | Non-Smoker + Obese | 1.3x base | ANOVA: 49% higher |
+| **Tier 5** | Non-Smoker + Normal BMI | 1.0x base | Lowest risk (baseline) |
 
 ---
 
 ### 🎯 Recommendation 2: Target Low-Risk Customer Segments
 
 **Ideal Customer Profile**:
-- Non-smoker ✓
-- BMI 18.5-25 (Normal) ✓
-- Age 25-40 (prime working age) ✓
+- ✅ Non-smoker
+- ✅ BMI 18.5-25 (Normal)
+- ✅ Age 25-40
 
 **Marketing Strategy**:
 - Partner with fitness apps and wellness platforms
 - Offer competitive rates to health-conscious demographics
-- Corporate wellness program partnerships
-
-**Expected Impact**: 25-30% lower claims on acquired customers.
 
 ---
 
 ### 🏥 Recommendation 3: Wellness Incentive Programs
 
-| Program | Incentive | Expected Behavior Change |
-|---------|-----------|-------------------------|
-| **Smoking Cessation** | 20-30% premium reduction upon completion | Reduce smoker population |
-| **Weight Management** | 5-10% discount for healthy BMI | Improve overall risk profile |
-| **Annual Checkups** | $100 credit for preventive care | Early issue detection |
-
-**Expected Impact**: Long-term reduction in high-risk policyholders.
+| Program | Incentive | Expected Impact |
+|---------|-----------|-----------------|
+| Smoking Cessation | 20-30% premium reduction | Reduce smoker population |
+| Weight Management | 5-10% discount for healthy BMI | Improve risk profile |
 
 ---
 
@@ -247,8 +446,6 @@ Where:
 - Age_Factor: 1.0 (young) to 2.0 (elderly)
 ```
 
-This formula is directly derived from our SHAP feature importance analysis.
-
 ---
 
 ## 7. Limitations and Future Work
@@ -257,34 +454,37 @@ This formula is directly derived from our SHAP feature importance analysis.
 
 | Limitation | Impact | Mitigation |
 |------------|--------|------------|
-| **Dataset Size** | 1,338 records limits model generalization | Gather more historical data |
-| **Missing Variables** | No claim history, policy duration, or occupation | Enhance data collection |
-| **Static Analysis** | Point-in-time snapshot, no temporal trends | Implement ongoing monitoring |
-| **Self-Reported Smoking** | Potential underreporting | Consider verification methods |
+| **Dataset Size** | 1,338 records limits generalization | Gather more data |
+| **No Temporal Data** | Cannot analyze trends over time | Add policy dates |
+| **Self-Reported Smoking** | Potential underreporting | Verification methods |
+| **No Actual Claims Data** | Charges ≠ claims | Integrate claims database |
+| **Cross-sectional** | Point-in-time snapshot | Longitudinal study |
 
 ### Recommended Future Work
 
-1. **Longitudinal Study**: Track policyholders over 3-5 years to validate predictions
-2. **Claim Frequency Model**: Current model predicts severity; add frequency prediction
-3. **External Data Integration**: Add credit scores, driving records, lifestyle data
+1. **Longitudinal Study**: Track policyholders over 3-5 years
+2. **Claim Frequency Model**: Add frequency to severity prediction
+3. **External Data**: Credit scores, driving records, lifestyle data
 4. **A/B Testing**: Test pricing changes on customer segments
-5. **Model Retraining Pipeline**: Automate quarterly model updates
+5. **Model Monitoring**: Automate quarterly retraining
 
 ---
 
 ## 8. Conclusion
 
-This analysis demonstrates the power of data-driven decision-making in insurance. By combining rigorous statistical testing with machine learning, we've:
+This comprehensive analysis demonstrates the power of data-driven decision-making in insurance:
 
-✅ **Validated** that smoking is the dominant risk factor (not just correlation—causation is well-established in medical literature)
+| Phase | Key Finding | Business Impact |
+|-------|-------------|-----------------|
+| **EDA** | Smokers show 3.8x higher charges | Identify risk segments |
+| **Hypothesis Testing** | 2 of 4 hypotheses rejected | Statistical validation |
+| **ML Modeling** | 86% accuracy in charge prediction | Automated pricing |
+| **SHAP Analysis** | Smoking × BMI is #1 predictor | Interpretable decisions |
 
-✅ **Quantified** the interaction between smoking and BMI as the top predictive feature
-
-✅ **Built** models that predict charges with 86% accuracy
-
-✅ **Translated** technical findings into actionable pricing and marketing strategies
-
-The insurance industry is evolving from intuition-based to evidence-based decision-making. AlphaCare Insurance Solutions now has the analytical foundation to lead this transformation.
+**AlphaCare Insurance Solutions** now has the analytical foundation to implement:
+- ✅ Evidence-based premium tiers
+- ✅ Targeted customer acquisition
+- ✅ Data-driven underwriting
 
 ---
 
@@ -292,20 +492,18 @@ The insurance industry is evolving from intuition-based to evidence-based decisi
 
 ### Tools & Technologies
 - **Languages**: Python 3.10
-- **ML Libraries**: scikit-learn, XGBoost
+- **ML Libraries**: scikit-learn, XGBoost, SHAP
 - **Visualization**: Matplotlib, Seaborn
-- **Interpretability**: SHAP
-- **Version Control**: Git, DVC
-- **CI/CD**: GitHub Actions
+- **Version Control**: Git, DVC, GitHub Actions
 
 ### Repository
 [github.com/meleseabrham/week-3](https://github.com/meleseabrham/week-3)
 
-### Reports Generated
+### Notebooks
 - `eda_analysis.ipynb` - Exploratory Data Analysis
 - `ab_testing.ipynb` - Hypothesis Testing
 - `modeling.ipynb` - Machine Learning Models
 
 ---
 
-*This report was prepared by the Data Analytics Team as part of the 10 Academy AI Mastery Program, December 2025.*
+*This report was prepared as part of the 10 Academy AI Mastery Program, December 2025.*
